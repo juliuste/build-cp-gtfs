@@ -158,6 +158,9 @@ const fetch = async (startDate, endDate, timezone='Europe/Lisbon') => {
     const stations = await cp.stations()
     const trainNumbersGroupedByDate = await fetchTrainNumbers(dates, stations)
     const trainNumbers = degroup(trainNumbersGroupedByDate)
+
+    const feedStart = momentTz.tz(startDate, timezone).format('YYYYMMDD')
+    const feedEnd = momentTz.tz(endDate, timezone).format('YYYYMMDD')
     const gtfs = {
         agency: toStream([
             ['agency_id', 'agency_name', 'agency_url', 'agency_timezone', 'agency_lang', 'agency_phone', 'agency_fare_url', 'agency_email'],
@@ -174,7 +177,11 @@ const fetch = async (startDate, endDate, timezone='Europe/Lisbon') => {
         trips: stream(),
         stop_times: stream(),
         // calendar: stream(),
-        calendar_dates: stream()
+        calendar_dates: stream(),
+        feed_info: toStream([
+            ['feed_publisher_name', 'feed_publisher_url', 'feed_lang', 'feed_start_date', 'feed_end_date', 'feed_version'],
+            ['gtfs.directory', 'https://gtfs.directory', 'pt', feedStart, feedEnd, '']
+        ])
     }
     gtfs.trips.push(['route_id', 'service_id', 'trip_id', 'trip_headsign', 'trip_short_name', 'direction_id', 'block_id', 'shape_id', 'wheelchair_accessible', 'bikes_allowed'])
     gtfs.stop_times.push(['trip_id', 'arrival_time', 'departure_time', 'stop_id', 'stop_sequence', 'stop_headsign', 'pickup_type', 'drop_off_type', 'shape_dist_traveled', 'timepoint'])

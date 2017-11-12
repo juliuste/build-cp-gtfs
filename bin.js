@@ -50,7 +50,7 @@ if (opt.version === true) {
 
 // main program
 
-const files = ['agency', 'stops', 'routes', 'trips', 'stop_times', 'calendar_dates']
+const files = ['agency', 'stops', 'routes', 'trips', 'stop_times', 'calendar_dates', 'feed_info']
 
 const main = (opt) => {
 	if(!isString(opt.start) || !isString(opt.end) || opt.start.length != 10 || opt.end.length != 10){

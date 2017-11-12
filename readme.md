@@ -48,6 +48,7 @@ The GTFS object contains the following streams:
 - `trips`
 - `stop_times`
 - `calendar_dates`
+- `feed_info`
 
 ### CLI
 
