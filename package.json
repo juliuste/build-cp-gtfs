@@ -18,7 +18,7 @@
 		"client",
 		"transport"
 	],
-	"author": "Julius Tens <mail@juliustens.de>",
+	"author": "Julius Tens <mail@juliustens.eu>",
 	"homepage": "https://github.com/juliuste/build-cp-gtfs",
 	"repository": "juliuste/build-cp-gtfs",
 	"bugs": "https://github.com/juliuste/build-cp-gtfs/issues",
