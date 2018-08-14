@@ -1,7 +1,7 @@
 {
 	"name": "build-cp-gtfs",
 	"description": "Build GTFS for the Portugese Railways (Comboios de Portugal, CP).",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"bin": {
 		"build-cp-gtfs": "./bin.js"
 	},
