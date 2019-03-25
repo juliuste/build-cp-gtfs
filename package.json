@@ -1,29 +1,39 @@
 {
 	"name": "build-cp-gtfs",
-	"description": "Build GTFS for the Portugese Railways (Comboios de Portugal, CP).",
 	"version": "0.0.3",
-	"bin": {
-		"build-cp-gtfs": "./bin.js"
-	},
+	"description": "Build GTFS for the Portugese Railways (Comboios de Portugal, CP).",
 	"keywords": [
-		"gtfs",
+		"api",
+		"client",
 		"comboios",
 		"cp",
+		"europe",
+		"gtfs",
+		"portugal",
 		"rail",
 		"railway",
 		"train",
-		"europe",
-		"portugal",
-		"api",
-		"client",
 		"transport"
 	],
-	"author": "Julius Tens <mail@juliustens.eu>",
 	"homepage": "https://github.com/juliuste/build-cp-gtfs",
-	"repository": "juliuste/build-cp-gtfs",
 	"bugs": "https://github.com/juliuste/build-cp-gtfs/issues",
-	"main": "./index.js",
-	"files": ["index.js", "bin.js"],
+	"repository": "juliuste/build-cp-gtfs",
+	"license": "ISC",
+	"author": "Julius Tens <mail@juliustens.eu>",
+	"files": [
+		"lib/*",
+		"bin.js"
+	],
+	"main": "lib/index.js",
+	"bin": {
+		"build-cp-gtfs": "./bin.js"
+	},
+	"scripts": {
+		"check-deps": "depcheck",
+		"fix": "eslint --fix lib bin.js",
+		"lint": "eslint lib bin.js",
+		"test": "npm run lint && npm run check-deps"
+	},
 	"dependencies": {
 		"comboios": "^0.0.2",
 		"csv-string": "^2.3.2",
@@ -43,9 +53,16 @@
 		"stream-to-promise": "^2.2.0",
 		"through2-map": "^3.0.0"
 	},
-	"scripts": {},
+	"devDependencies": {
+		"depcheck": "^0.7.2",
+		"eslint": "^5.15.3",
+		"eslint-config-standard": "^12.0.0",
+		"eslint-plugin-import": "^2.16.0",
+		"eslint-plugin-node": "^8.0.1",
+		"eslint-plugin-promise": "^4.0.1",
+		"eslint-plugin-standard": "^4.0.0"
+	},
 	"engines": {
 		"node": ">=8"
-	},
-	"license": "ISC"
+	}
 }
