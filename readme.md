@@ -1,15 +1,13 @@
 # build-cp-gtfs
 
-Build [GTFS](https://developers.google.com/transit/gtfs/) from the [Comboios de Portugal](https://cp.pt) (CP, Portugese Railways) REST API using the [comboios](https://github.com/juliuste/comboios) JS module. Please ask CP for permission before using this module in production.
+Build [GTFS](https://developers.google.com/transit/gtfs/) from the [Comboios de Portugal 🇵🇹](https://cp.pt) (CP, Portugese Railways) REST API using the [comboios](https://github.com/juliuste/comboios) JavaScript module. Inofficial, using *CP* endpoints. Ask them for permission before using this module in production.
 
 *Work in progress. This software is not stable yet. See the [to-do](#to-do) section.*
 
 [![npm version](https://img.shields.io/npm/v/build-cp-gtfs.svg)](https://www.npmjs.com/package/build-cp-gtfs)
 [![Build Status](https://travis-ci.org/juliuste/build-cp-gtfs.svg?branch=master)](https://travis-ci.org/juliuste/build-cp-gtfs)
-[![Greenkeeper badge](https://badges.greenkeeper.io/juliuste/build-cp-gtfs.svg)](https://greenkeeper.io/)
 [![dependency status](https://img.shields.io/david/juliuste/build-cp-gtfs.svg)](https://david-dm.org/juliuste/build-cp-gtfs)
-[![dev dependency status](https://img.shields.io/david/dev/juliuste/build-cp-gtfs.svg)](https://david-dm.org/juliuste/build-cp-gtfs#info=devDependencies)
-[![license](https://img.shields.io/github/license/juliuste/build-cp-gtfs.svg?style=flat)](LICENSE)
+[![license](https://img.shields.io/github/license/juliuste/build-cp-gtfs.svg?style=flat)](license)
 [![chat on gitter](https://badges.gitter.im/juliuste.svg)](https://gitter.im/juliuste)
 
 ## Installation
@@ -34,14 +32,15 @@ The script takes a `startDate` and an `endDate` JS `Date()` object (the feed wil
 ```js
 const generateGTFS = require('build-cp-gtfs')
 
-generateGTFS(new Date("2017-12-01T00:00:00"), new Date("2018-05-31T00:00:00"))
+generateGTFS(new Date("2019-05-01"), new Date("2018-05-31"))
 .then((gtfs) => {
-    gtfs.routes.pipe(someStream)
-    gtfs.stops.pipe(anotherStream)
+	gtfs.routes.pipe(someStream)
+	gtfs.stops.pipe(anotherStream)
 })
 ```
 
 The GTFS object contains the following streams:
+
 - `agency`
 - `stops`
 - `routes`
@@ -54,20 +53,19 @@ The GTFS object contains the following streams:
 
 ```shell
 build-cp-gtfs start-date end-date directory
-build-cp-gtfs 01.12.2017 31.05.2018 ~/cp-gtfs
+build-cp-gtfs 2019-05-01 2019-05-31 ~/cp-gtfs
 ```
 
 ## To do
 
 - minify/optimize gtfs `calendar_dates` to `calendar`
 
-[@juliuste](https://github.com/juliuste) will be working on this the next few days.
-
 ## See also
 
 - [comboios](https://github.com/juliuste/comboios) - Comboios de Portgal API client in JavaScript
 - [db-api-to-gtfs](https://github.com/patrickbr/db-api-to-gtfs) - Build GTFS from the Deutsche Bahn (DB, German Railways) REST API
+- [european-transport-operators](https://github.com/public-transport/european-transport-operators) - List of european long-distance transport operators, available API endpoints, GTFS feeds and client modules.
 
 ## Contributing
 
-If you found a bug, want to propose a feature or feel the urge to complain about your life, feel free to visit [the issues page](https://github.com/juliuste/build-cp-gtfs/issues).
+If you found a bug or want to propose a feature, feel free to visit [the issues page](https://github.com/juliuste/build-cp-gtfs/issues).
