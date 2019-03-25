@@ -3,15 +3,19 @@
 
 const mri = require('mri')
 const fs = require('fs')
-const path = require('path')
-const toPromise = require('stream-to-promise')
+const { resolve } = require('path')
 const isEmpty = require('is-empty-file')
 const moment = require('moment-timezone')
-const csv = require('csv-string').stringify
-const isString = require('lodash.isstring')
-const map = require('through2-map').obj
+const stringify = require('csv-stringify')
+const isString = require('lodash/isString')
+const pump = require('pump')
+const pify = require('pify')
 
-const generateGTFS = require('./index')
+const pMkdir = pify(fs.mkdir)
+const pUnlink = pify(fs.unlink)
+const pPump = pify(pump)
+
+const generateGTFS = require('.')
 const pkg = require('./package.json')
 
 const argv = mri(process.argv.slice(2), {
@@ -19,11 +23,11 @@ const argv = mri(process.argv.slice(2), {
 })
 
 const opt = {
-    start: argv._[0],
-    end: argv._[1],
+	start: argv._[0],
+	end: argv._[1],
 	directory: argv._[2],
-    help: argv.help || argv.h,
-    version: argv.version || argv.v
+	help: argv.help || argv.h,
+	version: argv.version || argv.v
 }
 
 if (opt.help === true) {
@@ -31,8 +35,8 @@ if (opt.help === true) {
 build-cp-gtfs [options] start-date end-date gtfs-directory
 
 Arguments:
-    start-date			Feed start date: DD.MM.YYYY
-    end-date			Feed end date: DD.MM.YYYY (included)
+    start-date			Feed start date: YYYY-MM-DD (in Europe/Lisbon timezone)
+    end-date			Feed end date: YYYY-MM-DD (included, in Europe/Lisbon timezone)
 	gtfs-directory		Directory where the generated GTFS will be placed
 
 Options:
@@ -48,56 +52,37 @@ if (opt.version === true) {
 	process.exit(0)
 }
 
-// main program
-
-const files = ['agency', 'stops', 'routes', 'trips', 'stop_times', 'calendar_dates', 'feed_info']
-
-const main = (opt) => {
-	if(!isString(opt.start) || !isString(opt.end) || opt.start.length != 10 || opt.end.length != 10){
-		throw new Error('missing or invalid `start-date` or `end-date` parameter, must look like this: `DD.MM.YYYY`')
+const main = async (opt) => {
+	if (!isString(opt.start) || !isString(opt.end) || opt.start.length !== 10 || opt.end.length !== 10) {
+		throw new Error('missing or invalid `start-date` or `end-date` parameter, must look like this: `YYYY-MM-DD`')
 	}
-	const start = moment.tz(opt.start, 'DD.MM.YYYY', 'Europe/Lisbon')
-	const end = moment.tz(opt.end, 'DD.MM.YYYY', 'Europe/Lisbon')
+	const start = moment.tz(opt.start, 'YYYY-MM-DD', 'Europe/Lisbon')
+	const end = moment.tz(opt.end, 'YYYY-MM-DD', 'Europe/Lisbon')
+	if (+start > +end) throw new Error('`end` cannot be before `start`')
 
-	if(+start > +end){
-		throw new Error('`end` before `start`')
-	}
+	const gtfs = await generateGTFS(start.toDate(), end.toDate())
 
-	const directory = path.resolve(opt.directory)
+	// create directory if necessary
+	const directory = resolve(opt.directory)
+	await (pMkdir(directory, { recursive: true }).catch(error => {
+		if (error.code !== 'EEXIST') throw error
+	}))
 
-	generateGTFS(start.toDate(), end.toDate())
-	.then((gtfs) => {
-		if(!fs.existsSync(directory)) fs.mkdirSync(directory)
-		fs.accessSync(directory, fs.constants.W_OK)
+	const jobs = Object.keys(gtfs).map(file => {
+		const writeStream = fs.createWriteStream(resolve(directory, `${file}.txt`))
+		return pPump(gtfs[file], stringify({ delimiter: ',' }), writeStream)
+	})
+	await Promise.all(jobs)
 
-		const streams = []
-
-		for(let file in gtfs){
-			const filePath = path.join(directory, file + '.txt')
-			streams.push(gtfs[file].pipe(map((x) => csv(x, ','))).pipe(fs.createWriteStream(filePath)))
+	const actions = await Promise.all(Object.keys(gtfs).map(file => {
+		const filePath = resolve(directory, `${file}.txt`)
+		if (isEmpty(filePath)) { // @todo
+			return pUnlink(filePath).then(() => 'deleted')
 		}
-
-		Promise.all(streams.map(toPromise))
-		.then((done) => {
-			let i = 0
-			for(let file in gtfs){
-				const filePath = path.join(directory, file + '.txt')
-				if(isEmpty(filePath)){
-					fs.unlinkSync(filePath)
-					i++
-				}
-			}
-			console.log(`${files.length - i} files written`)
-		})
-		.catch((error) => {
-			console.error(error)
-			throw new Error(error)
-		})
-	})
-	.catch((error) => {
-		console.error(error)
-		throw new Error(error)
-	})
+		return Promise.resolve('written')
+	}))
+	console.log(`${actions.filter(a => a === 'written').length} files written`)
 }
 
 main(opt)
+	.catch(console.error)
