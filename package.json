@@ -1,6 +1,6 @@
 {
 	"name": "build-cp-gtfs",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Build GTFS for the Portugese Railways (Comboios de Portugal, CP).",
 	"keywords": [
 		"api",
