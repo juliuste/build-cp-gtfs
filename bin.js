@@ -5,7 +5,7 @@ const mri = require('mri')
 const fs = require('fs')
 const { resolve } = require('path')
 const isEmpty = require('is-empty-file')
-const moment = require('moment-timezone')
+const { DateTime } = require('luxon')
 const stringify = require('csv-stringify')
 const isString = require('lodash/isString')
 const pump = require('pump')
@@ -56,11 +56,11 @@ const main = async (opt) => {
 	if (!isString(opt.start) || !isString(opt.end) || opt.start.length !== 10 || opt.end.length !== 10) {
 		throw new Error('missing or invalid `start-date` or `end-date` parameter, must look like this: `YYYY-MM-DD`')
 	}
-	const start = moment.tz(opt.start, 'YYYY-MM-DD', 'Europe/Lisbon')
-	const end = moment.tz(opt.end, 'YYYY-MM-DD', 'Europe/Lisbon')
+	const start = DateTime.fromFormat(opt.start, 'yyyy-MM-dd', { zone: 'Europe/Lisbon' }).toJSDate()
+	const end = DateTime.fromFormat(opt.end, 'yyyy-MM-dd', { zone: 'Europe/Lisbon' }).toJSDate()
 	if (+start > +end) throw new Error('`end` cannot be before `start`')
 
-	const gtfs = await generateGTFS(start.toDate(), end.toDate())
+	const gtfs = await generateGTFS(start, end)
 
 	// create directory if necessary
 	const directory = resolve(opt.directory)
